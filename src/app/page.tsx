@@ -1,9 +1,11 @@
-
+"use client"
 import Header from "./components/Header"
 import Footer from './components/Footer';
 import { SendHorizontal } from 'lucide-react';
+import { useState } from "react";
 
 export default function Home() {
+  const [query, setQuery] = useState('')
   return (
     <div className="z-10 bg-black text-white w-full flex flex-col h-screen">
       <Header />
@@ -19,11 +21,13 @@ export default function Home() {
       <div className="lg:w-[60%] sticky bottom-0 mx-auto z-10 mt-auto px-4">
         <div className="bg-gray-800 px-6 py-3 z-10 rounded-full flex items-center w-[100%] bg:border-transparent text-gray-300 focus:outline-none">
           <input
+            onChange={(e) => { setQuery(e.target.value) }}
+            value={query}
             placeholder="What can I help you with?"
-            className="w-[100%] text-lg placeholder-slate-300 bg-gray-800 bg:border-transparent text-gray-300 focus:outline-none"
+            className="w-[100%] text-lg placeholder-slate-400 focus:placeholder-slate-300 bg-gray-800 bg:border-transparent text-gray-300 focus:outline-none"
           />
           <div className="hover:cursor-pointer hover:bg-gray-700 rounded-full p-2">
-            <SendHorizontal className="w-7 h-7" />
+            <SendHorizontal className={`w-7 h-7 ${query ? 'text-gray-300' : 'text-gray-600'}`} />
           </div>
         </div>
         <div className="text-center text-xs lg:text-sm p-2 text-slate-300">
