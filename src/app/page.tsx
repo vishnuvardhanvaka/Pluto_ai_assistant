@@ -53,7 +53,7 @@ export default function Home() {
       },
     ],
     generationConfig: {
-      maxOutputTokens: 100,
+      maxOutputTokens: 10000,
     },
   });
 
@@ -103,8 +103,9 @@ export default function Home() {
 
 
   return (
-    <div className=" bg-black relative text-white overflow-y-hidden overflow-hidden">
-      <nav className="bg-black mb-2 z-40 fixed w-full top-0 border-[#4d4d5d] border-b-[1px]">
+    <div className=" bg-black relative text-white mx-auto">
+
+      <nav className="bg-black mb-2 z-40 sticky w-full top-0 border-[#4d4d5d] border-b-[1px]">
         <div className="container px-6 py-4  mx-auto md:flex md:justify-between md:items-center">
           <div className="flex items-center justify-between">
             <a href="/" className="z-20">
@@ -128,7 +129,6 @@ export default function Home() {
               </div>
             </div>
 
-
           </div>
           {menuOpened && (
             <div className="text-lg font-bold absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-gray-900 md:bg-transparent md:dark:bg-transparent md:mt-0 md:p-0 md:top-0 md:relative md:w-auto md:opacity-100 md:translate-x-0 md:flex md:items-center">
@@ -151,92 +151,91 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <div className="">
-        {/* hero/chat container*/}
-        <div
-          id='scrollbar-chat'
-          className="mt-16 mb-16 scrollbar overflow-y-scroll overflow-x-hidden max-h-[] justify-center flex"
-        // className="p-4 max-h-[80vh] fixed top-20 justify-center items-center flex flex-col overflow-y-scroll scrollbar bg-black flex-grow"
-        >
-          {chatHistory == 0 ? (
-            <div className="lg:w-[50%]">
-              <h1 className="text-5xl lg:text-6xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">Hello </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> there,</span></h1>
-              <h1 className="text-2xl mt-3 lg:text-2xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">I'm </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> Pluto,</span></h1>
-              {/* <h1 className="text-2xl lg:text-5xl font-bold text-gray-600">How can I help you today?</h1> */}
-              <TypewriterEffectSmooth words={words} />
-            </div>  
-
-          ) : (
-            <div className="lg:w-[60%] border-2 m-4">
-              {chatHistory.map((message: any, index: number) => (
-                <div key={index}>
-                  <div className="flex relative items-center border-2 my-4 p-4">
-                    {message.role === 'user' ? (
-                      <img
-                        src='/bear.png'
-                        className="w-9 h-9 mr-5"
-                      />
-                    ) : (
-                      <div className="flex">
-                        <img
-                          src='https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
-                          className="w-9 h-9 animate absolute mr-5"
-                        />
-                        <img
-                          src='https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
-                          className="w-9 h-9 animate rotate-45 mr-5"
-                        />
-                      </div>
-                    )
-
-                    }
-                    {/* <p>Role: {message.role}</p> */}
-                    <p>{message.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
 
 
-        {/* chat input */}
-        <div className="lg:w-[60%] sticky bottom-0 left-0 p-2 right-0 mx-auto z-2 bg-black flex-grow">
 
-          <div className="bg-gray-800 px-6 py-2 z-10 rounded-full flex items-center w-[100%] bg:border-transparent text-gray-300 focus:outline-none">
-            <Textarea
-              onKeyDown={(e) => {
-                if (e.keyCode == 13 && !e.shiftKey) {
-                  ask()
-                  if (e.preventDefault) {
-                    e.preventDefault(); // This should fix it
+
+      {/* hero/chat container*/}
+      <div
+        id='scrollbar-chat'
+        className="max-h-[70vh] overflow-y-auto overflow-x-hidden"
+      // className="p-4 max-h-[80vh] fixed top-20 justify-center items-center flex flex-col overflow-y-scroll scrollbar bg-black flex-grow"
+      >
+        {chatHistory == 0 ? (
+          <div className="mx-auto my-auto h-[50vh] lg:w-[50%] items-center justify-center flex flex-col">
+            <h1 className="text-5xl lg:text-6xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">Hello </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> there,</span></h1>
+            <h1 className="text-2xl mt-3 lg:text-2xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">I'm </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> Pluto,</span></h1>
+            {/* <h1 className="text-2xl lg:text-5xl font-bold text-gray-600">How can I help you today?</h1> */}
+            <TypewriterEffectSmooth words={words} />
+          </div>
+
+        ) : (
+          <div className="lg:w-[65%] mx-auto m-4">
+            {chatHistory.map((message: any, index: number) => (
+              <div key={index}>
+                <div className="flex relative justify-between items-start p-4">
+                  {message.role === 'user' ? (
+                    <img
+                      src='/bear.png'
+                      className="w-9 h-9"
+                    />
+                  ) : (
+                    <img
+                      src='https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
+                      // src='/bear.png'
+                      className="w-9 h-9 animate"
+                    />
+                  )
+
                   }
-                  setQuery('')
-                  return false;
-                }
-              }}
-              onChange={(e) => { setQuery(e.target.value) }}
-              value={query}
-              placeholder="What can I help you with?"
-              className="w-[100%] text-xs lg:text-lg placeholder-slate-500 focus:placeholder-slate-400 bg-gray-800 bg:border-transparent text-gray-300 focus:outline-none"
-            />
-            <div
-              onClick={(e) => {
+                  {/* <p>Role: {message.role}</p> */}
+                  <p className="w-[95%] ml-5">{message.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
+
+
+
+      {/* chat input */}
+      <div className="lg:w-[60%] fixed bottom-0 left-0 p-2 right-0 mx-auto z-2 bg-black flex-grow">
+
+        <div className="bg-gray-800 px-6 py-2 z-10 rounded-full flex items-center w-[100%] bg:border-transparent text-gray-300 focus:outline-none">
+          <Textarea
+            onKeyDown={(e) => {
+              if (e.keyCode == 13 && !e.shiftKey) {
                 ask()
                 if (e.preventDefault) {
                   e.preventDefault(); // This should fix it
                 }
                 setQuery('')
-              }}
-              className="hover:cursor-pointer hover:bg-gray-700 rounded-full p-2"
-            >
-              <SendHorizontal className={`w-7 h-7 ${query ? 'text-gray-300' : 'text-gray-600'}`} />
-            </div>
+                return false;
+              }
+            }}
+            onChange={(e) => { setQuery(e.target.value) }}
+            value={query}
+            placeholder="What can I help you with?"
+            className="w-[100%] text-xs lg:text-lg placeholder-slate-500 focus:placeholder-slate-400 bg-gray-800 bg:border-transparent text-gray-300 focus:outline-none"
+          />
+          <div
+            onClick={(e) => {
+              ask()
+              if (e.preventDefault) {
+                e.preventDefault(); // This should fix it
+              }
+              setQuery('')
+            }}
+            className="hover:cursor-pointer hover:bg-gray-700 rounded-full p-2"
+          >
+            <SendHorizontal className={`w-7 h-7 ${query ? 'text-gray-300' : 'text-gray-600'}`} />
           </div>
-          <div className="text-center text-xs lg:text-sm p-2 text-slate-300">
-            Pluto may display inaccurate info, including about people, so double-check its responses.
-          </div>
+        </div>
+        <div className="text-center text-xs lg:text-sm p-2 text-slate-300">
+          Pluto may display inaccurate info, including about people, so double-check its responses.
         </div>
       </div>
 
