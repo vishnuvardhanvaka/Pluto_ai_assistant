@@ -3,17 +3,42 @@ import Header from "./components/Header"
 import Footer from './components/Footer';
 import { SendHorizontal } from 'lucide-react';
 import { useState } from "react";
+import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect";
 
 export default function Home() {
   const [query, setQuery] = useState('')
+  const words = [
+    {
+      text: "Your",
+      className: "text-blue-500 text-md dark:text-blue-500",
+    },
+    {
+      text: "fridenly",
+      className: "text-blue-500 text-md dark:text-blue-500",
+    },
+    {
+      text: "guide to",
+      className: "text-blue-500 text-md dark:text-blue-500",
+    },
+    {
+      text: "endless",
+      className: "text-blue-500 text-md dark:text-blue-500",  
+    },
+    {
+      text: "possibilities.",
+      className: "text-blue-500 text-md dark:text-blue-500",
+    },
+  ];
   return (
     <div className="z-10 bg-black text-white w-full flex flex-col h-screen">
       <Header />
       {/* hero */}
-      <div className="w-full justify-center items-center mt-20 flex">
+      <div className="w-full h-screen justify-center items-center my-auto flex">
         <div className="lg:w-[50%]">
           <h1 className="text-5xl lg:text-6xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">Hello </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> there,</span></h1>
-          <h1 className="text-2xl lg:text-5xl font-bold text-gray-600">How can I help you today?</h1>
+          <h1 className="text-2xl mt-3 lg:text-2xl font-bold"><span className="bg-gradient-to-r from-blue-600 to-[#f83dc6] inline-block text-transparent bg-clip-text">I'm </span><></> <span className="bg-gradient-to-r from-[#cc78fa] to-[#ff80b7] inline-block text-transparent bg-clip-text"> Pluto,</span></h1>
+          {/* <h1 className="text-2xl lg:text-5xl font-bold text-gray-600">How can I help you today?</h1> */}
+          <TypewriterEffectSmooth words={words} />
         </div>
       </div>
 
