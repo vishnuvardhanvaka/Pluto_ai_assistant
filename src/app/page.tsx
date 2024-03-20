@@ -190,7 +190,7 @@ export default function Home() {
 
                   }
                   {/* <p>Role: {message.role}</p> */}
-                  <p className="w-[95%] ml-5">{message.content}</p>
+                  <p className="w-[95%] ml-5 whitespace-pre-line">{message.content}</p>
                 </div>
               </div>
             ))}
