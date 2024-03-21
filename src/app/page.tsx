@@ -1,16 +1,17 @@
 "use client"
 import Header from "./components/Header"
 import Footer from './components/Footer';
-import { SendHorizontal } from 'lucide-react';
-import { useState,useRef, useEffect } from "react";
+import { SendHorizontal, Copy, CheckCheck } from 'lucide-react';
+import { useState, useRef, useEffect } from "react";
 import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect";
 import './Scrollbar.css'
 import { Textarea } from "@/components/ui/textarea"
-import { list } from "postcss";
+import { useToast } from "@/components/ui/use-toast"
 // import OpenAI from "openai";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 
 export default function Home() {
+  const { toast } = useToast()
   const [menuOpened, setMenuOpened] = useState(false)
   const [query, setQuery] = useState('')
   const [spin, setSpin] = useState(false)
@@ -41,6 +42,37 @@ export default function Home() {
   const genAI = new GoogleGenerativeAI("AIzaSyAU_L_qPbG-7fzYuFOt5YGmTN8IONx2hwI");
   const [chatHistory, setChatHistory] = useState<any>([])
   const chatContainerRef: any = useRef(null);
+  const [copied, setCopied] = useState(false)
+
+  function copyToClipboard(content: string) {
+    try {
+      // Create a temporary textarea element
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+
+      // Append the textarea to the body
+      document.body.appendChild(textarea);
+
+      // Select and copy the content
+      textarea.select();
+      document.execCommand('copy');
+
+      // Remove the textarea from the DOM
+      document.body.removeChild(textarea);
+      toast({
+        description: "Your message has been sent.",
+      })
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1100);
+    } catch (err) {
+      console.error('Unable to copy text to clipboard', err);
+    }
+  }
 
   useEffect(() => {
     // Scroll to the bottom of the chat container when chatHistory changes
@@ -48,7 +80,7 @@ export default function Home() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
-  
+
   const safetySettings = [
     {
       category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -119,7 +151,7 @@ export default function Home() {
     const result = await chat.sendMessageStream(query);
 
     let textt = '';
-    
+
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       textt += chunkText;
@@ -208,7 +240,7 @@ export default function Home() {
 
       {/* hero/chat container*/}
       <div
-      ref={chatContainerRef}
+        ref={chatContainerRef}
         id='scrollbar-chat'
         className="max-h-[65vh] lg:max-h-[70vh] overflow-y-auto overflow-x-hidden"
       // className="p-4 max-h-[80vh] fixed top-20 justify-center items-center flex flex-col overflow-y-scroll scrollbar bg-black flex-grow"
@@ -235,13 +267,37 @@ export default function Home() {
                     <img
                       src='https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
                       // src='/bear.png'
-                      className={`w-9 h-9 ${message.role==='generating' ? 'animate-spin' : ''}`}
+                      className={`w-9 h-9 ${message.role === 'generating' ? 'animate-spin' : ''}`}
                     />
                   )
 
                   }
                   {/* <p>Role: {message.role}</p> */}
-                  <p className="w-[95%] ml-5 whitespace-pre-line">{message.content}</p>
+                  <p className="w-[95%] ml-5 whitespace-pre-line relative pb-4">
+                    {message.content}
+
+                    <div className={` mt-2 flex  ${message.role === 'generating' || message.role === 'user' ? 'hidden' : ''}`}>
+                      {/* {copied ? (
+                      <CheckCheck
+                        // className={`absolute right-0 h-4 mt-4 mx-2 ${message.role === 'generating' || message.role === 'user' ? 'hidden' : ''} text-green-400`}
+                        className={`w-5 h-5  text-green-400 right-0 bottom-0 `}
+                      
+                      />
+
+                    ) : ( */}
+
+                      <Copy
+                        onClick={() => {
+                          copyToClipboard(message.content)
+                          toast({
+                            title: "Text copied",
+                          })
+                        }}
+                        className={`w-5 h-5  hover:cursor-pointer right-0 bottom-0 `}
+                      />
+                      {/* )} */}
+                    </div>
+                  </p>
                 </div>
               </div>
             ))}
