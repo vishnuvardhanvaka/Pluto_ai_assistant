@@ -2,13 +2,13 @@
 import Header from "./components/Header"
 import Footer from './components/Footer';
 import { SendHorizontal } from 'lucide-react';
-import { useState } from "react";
+import { useState,useRef, useEffect } from "react";
 import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect";
 import './Scrollbar.css'
 import { Textarea } from "@/components/ui/textarea"
 import { list } from "postcss";
 // import OpenAI from "openai";
-
+import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 
 export default function Home() {
   const [menuOpened, setMenuOpened] = useState(false)
@@ -40,9 +40,36 @@ export default function Home() {
   const { GoogleGenerativeAI } = require("@google/generative-ai");
   const genAI = new GoogleGenerativeAI("AIzaSyAU_L_qPbG-7fzYuFOt5YGmTN8IONx2hwI");
   const [chatHistory, setChatHistory] = useState<any>([])
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const chatContainerRef: any = useRef(null);
+
+  useEffect(() => {
+    // Scroll to the bottom of the chat container when chatHistory changes
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+  
+  const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+  ];
+  const model = genAI.getGenerativeModel({ model: "gemini-pro", safetySettings });
   const chat = model.startChat({
     history: [
+      {
+        role: "user",
+        parts: [{ text: "Talk in friendly tone only with me." }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "Yes sure. I'm your friend pluto. I will try my best and help you with all your queries." }],
+      },
       {
         role: "user",
         parts: [{ text: "What is your name?" }],
@@ -53,7 +80,11 @@ export default function Home() {
       },
     ],
     generationConfig: {
-      maxOutputTokens: 10000,
+      // stopSequences: ["red"],
+      maxOutputTokens: 1000,
+      temperature: 0.7,
+      topP: 0.1,
+      topK: 16,
     },
   });
 
@@ -84,20 +115,40 @@ export default function Home() {
       { role: 'user', content: query },
     ]);
 
-    const result = await chat.sendMessage(query);
-    const response = await result.response;
-    const text = response.text();
-    setChatHistory((prevChat: any) => [
-      ...prevChat,
-      { role: 'model', content: text },
-    ]);
+    // const result = await chat.sendMessage(query);
+    const result = await chat.sendMessageStream(query);
 
-    // console.log(chat)
-    console.log(text);
-    console.log(chat)
-    console.log(chat.model)
-    // console.log(chat._history)
-    console.log(chatHistory)
+    let textt = '';
+    
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      textt += chunkText;
+      setChatHistory((prevChat: any) => {
+        const lastMessage = prevChat[prevChat.length - 1];
+        if (lastMessage && lastMessage.role === 'generating') {
+          return [
+            ...prevChat.slice(0, prevChat.length - 1),
+            { role: 'generating', content: lastMessage.content + chunkText },
+          ];
+        }
+        else {
+          return [
+            ...prevChat,
+            { role: 'generating', content: textt },
+          ];
+        }
+      });
+    }
+
+    setChatHistory((prevChat: any) => {
+      const lastMessage = prevChat[prevChat.length - 1];
+      if (lastMessage && lastMessage.role === 'generating') {
+        return [
+          ...prevChat.slice(0, prevChat.length - 1),
+          { role: 'model', content: lastMessage.content },
+        ];
+      }
+    });
 
   }
 
@@ -158,8 +209,9 @@ export default function Home() {
 
       {/* hero/chat container*/}
       <div
+      ref={chatContainerRef}
         id='scrollbar-chat'
-        className="max-h-[70vh] overflow-y-auto overflow-x-hidden"
+        className="max-h-[65vh] lg:max-h-[70vh] overflow-y-auto overflow-x-hidden"
       // className="p-4 max-h-[80vh] fixed top-20 justify-center items-center flex flex-col overflow-y-scroll scrollbar bg-black flex-grow"
       >
         {chatHistory == 0 ? (
@@ -184,7 +236,7 @@ export default function Home() {
                     <img
                       src='https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg'
                       // src='/bear.png'
-                      className="w-9 h-9 animate"
+                      className={`w-9 h-9 ${message.role==='generating' ? 'animate-spin' : ''}`}
                     />
                   )
 
@@ -196,14 +248,11 @@ export default function Home() {
             ))}
           </div>
         )}
-
       </div>
-
 
 
       {/* chat input */}
       <div className="lg:w-[60%] fixed bottom-0 left-0 p-2 right-0 mx-auto z-2 bg-black flex-grow">
-
         <div className="bg-gray-800 px-6 py-2 z-10 rounded-full flex items-center w-[100%] bg:border-transparent text-gray-300 focus:outline-none">
           <Textarea
             onKeyDown={(e) => {
@@ -212,6 +261,10 @@ export default function Home() {
                 if (e.preventDefault) {
                   e.preventDefault(); // This should fix it
                 }
+                setChatHistory((prevChat: any) => [
+                  ...prevChat,
+                  { role: 'generating', content: '' },
+                ]);
                 setQuery('')
                 return false;
               }
@@ -227,6 +280,10 @@ export default function Home() {
               if (e.preventDefault) {
                 e.preventDefault(); // This should fix it
               }
+              setChatHistory((prevChat: any) => [
+                ...prevChat,
+                { role: 'generating', content: '' },
+              ]);
               setQuery('')
             }}
             className="hover:cursor-pointer hover:bg-gray-700 rounded-full p-2"
