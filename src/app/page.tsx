@@ -39,7 +39,7 @@ export default function Home() {
   ];
 
   const { GoogleGenerativeAI } = require("@google/generative-ai");
-  const genAI = new GoogleGenerativeAI("AIzaSyAU_L_qPbG-7fzYuFOt5YGmTN8IONx2hwI");
+  const genAI = new GoogleGenerativeAI("AIzaSyCSfDU3ixFHYKc_x36vc0iv-ANBhQ7Hw-g");
   const [chatHistory, setChatHistory] = useState<any>([])
   const chatContainerRef: any = useRef(null);
   const [copied, setCopied] = useState(false)
